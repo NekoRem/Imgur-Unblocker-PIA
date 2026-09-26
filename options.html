@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            width: 380px;
+            padding: 12px 16px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 13px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 4px;
+            font-weight: 600;
+        }
+
+        label.inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="password"],
+        select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 6px;
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .row > div:first-child {
+            flex: 1;
+        }
+
+        .row > div:last-child {
+            width: 90px;
+        }
+
+        .hint {
+            color: #777;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        #authFields.hidden {
+            display: none;
+        }
+
+        button {
+            margin-top: 14px;
+            padding: 6px 16px;
+        }
+
+        #status {
+            margin-left: 8px;
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <label class="inline"><input type="checkbox" id="enabled"> Route imgur through proxy</label>
+
+    <label for="scheme">Proxy type</label>
+    <select id="scheme">
+        <option value="socks5">SOCKS5 (no login)</option>
+        <option value="http">HTTP</option>
+        <option value="https">HTTPS</option>
+    </select>
+    <div class="hint">
+        Brave/Chrome can't log in to SOCKS5 proxies. For PIA, run a local relay
+        (see README) and point this at 127.0.0.1:1080.
+    </div>
+
+    <div class="row">
+        <div>
+            <label for="host">Host</label>
+            <input type="text" id="host" placeholder="127.0.0.1">
+        </div>
+        <div>
+            <label for="port">Port</label>
+            <input type="number" id="port" min="1" max="65535" placeholder="1080">
+        </div>
+    </div>
+
+    <div id="authFields">
+        <label for="username">Username</label>
+        <input type="text" id="username" autocomplete="off">
+        <label for="password">Password</label>
+        <input type="password" id="password" autocomplete="off">
+    </div>
+
+    <button id="save">Save</button><span id="status"></span>
+
+    <script src="options.js"></script>
+</body>
+</html>

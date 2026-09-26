@@ -1,26 +1,6 @@
-const imgurRegex = /^https?:\/\/(\w+\.)?imgur\.com\/.*/;
+const imgurRegex = /^https?:\/\/([\w-]+\.)*imgur\.(com|io)\//;
 let pageCount = 0;
 const processedElements = new Set();
-
-function checkRedirect() {
-    const url = new URL(window.location.href);
-    if (url.hostname === 'external-content.duckduckgo.com') {
-        const originalUrl = url.searchParams.get('u');
-        if (originalUrl && imgurRegex.test(originalUrl)) {
-            pageCount++;
-            
-            chrome.runtime.sendMessage({
-                type: 'updateBadge',
-                count: pageCount
-            });
-
-            chrome.runtime.sendMessage({
-                type: 'incrementTotal',
-                amount: 1
-            });
-        }
-    }
-}
 
 function processImages() {
     const images = document.querySelectorAll('img');
@@ -50,7 +30,6 @@ function processImages() {
     }
 }
 
-checkRedirect();
 processImages();
 
 const observer = new MutationObserver(processImages);

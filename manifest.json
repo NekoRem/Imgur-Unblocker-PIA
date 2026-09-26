@@ -1,24 +1,17 @@
 {
-    "name": "Imgur Unblocker",
-    "version": "2.0.2",
-    "description": "Replaces all imgur image links with the duckduckgo proxy.",
+    "name": "Imgur Unblocker (PIA Proxy)",
+    "version": "3.0.0",
+    "description": "Routes imgur traffic through your own proxy (e.g. PIA SOCKS5) to get around regional blocks.",
     "manifest_version": 3,
     "permissions": [
-        "declarativeNetRequest",
-        "storage"
+        "proxy",
+        "storage",
+        "webRequest",
+        "webRequestAuthProvider"
     ],
     "host_permissions": [
         "<all_urls>"
     ],
-    "declarative_net_request": {
-        "rule_resources": [
-            {
-                "id": "ruleset_1",
-                "enabled": true,
-                "path": "rules.json"
-            }
-        ]
-    },
     "action": {
         "default_popup": "popup.html",
         "default_icon": {
@@ -27,13 +20,21 @@
             "128": "icon128.png"
         }
     },
+    "options_ui": {
+        "page": "options.html",
+        "open_in_tab": false
+    },
     "background": {
         "service_worker": "background.js"
     },
     "content_scripts": [
         {
-            "matches": ["<all_urls>"],
-            "js": ["content.js"]
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "content.js"
+            ]
         }
     ],
     "icons": {

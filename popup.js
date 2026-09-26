@@ -64,6 +64,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateTotalCount();
 
+    async function updateProxyStatus() {
+        const el = document.getElementById('proxyStatus');
+        const [{ settings, lastProxyError }, proxyConfig] = await Promise.all([
+            chrome.storage.local.get(['settings', 'lastProxyError']),
+            chrome.proxy.settings.get({})
+        ]);
+
+        if (settings && settings.enabled === false) {
+            el.className = 'proxy-status';
+            el.textContent = 'Proxy disabled';
+        } else if (proxyConfig.levelOfControl !== 'controlled_by_this_extension') {
+            el.className = 'proxy-status bad';
+            el.textContent = 'Another extension controls the proxy';
+        } else if (lastProxyError && Date.now() - lastProxyError.time < 5 * 60 * 1000) {
+            el.className = 'proxy-status bad';
+            el.textContent = `Proxy error: ${lastProxyError.error}`;
+        } else {
+            const host = settings?.host || '127.0.0.1';
+            const port = settings?.port || 1080;
+            el.className = 'proxy-status ok';
+            el.textContent = `Proxying via ${host}:${port}`;
+        }
+    }
+
+    updateProxyStatus();
+
+    document.getElementById('openOptions').addEventListener('click', (e) => {
+        e.preventDefault();
+        chrome.runtime.openOptionsPage();
+    });
+
     chrome.runtime.onMessage.addListener((message) => {
         if (message.type === 'updateBadge') {
             document.getElementById('currentCount').textContent = message.count;
