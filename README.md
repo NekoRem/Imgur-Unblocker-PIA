@@ -1,59 +1,47 @@
 # ImgurUnblocker (PIA Proxy fork)
 
-Routes imgur traffic through your own proxy, such as a [PIA](https://www.privateinternetaccess.com/) SOCKS5 proxy, so imgur works in the UK again. All other sites connect directly as normal.
+Routes **only** imgur traffic through [PIA](https://www.privateinternetaccess.com/)'s proxy servers so imgur works in the UK again. Every other site connects directly as normal.
 
-Imgur shows "Content not viewable in your region" in the UK. The original extension got around this with DuckDuckGo's image proxy, which no longer works. This fork uses the browser's proxy API instead. Because the real imgur servers are loaded through the proxy, full imgur pages and albums work too, not just direct image links.
+Imgur shows "Content not viewable in your region" in the UK. The original extension got around this with DuckDuckGo's image proxy, which no longer works. This fork loads the real imgur servers through a PIA proxy instead, so full imgur pages and albums work too, not just direct image links.
 
 Forked from [HexedHero/ImgurUnblocker](https://github.com/HexedHero/ImgurUnblocker).
 
 ## How it works
 
 ```
-Brave ──imgur.com / imgur.io──▶ 127.0.0.1:1080 (gost) ──SOCKS5 + login──▶ PIA (NL) ──▶ imgur
+Brave ──imgur.com / imgur.io──▶ PIA HTTPS proxy (e.g. NL Amsterdam) ──▶ imgur
       └──everything else──────▶ direct
 ```
 
-Brave and Chrome can't log in to SOCKS5 proxies, and PIA's SOCKS5 proxy needs a username and password. A small local relay ([gost](https://github.com/go-gost/gost)) fills that gap: the extension sends imgur traffic to the relay without a login, and the relay forwards it to PIA with your credentials.
+The extension signs in to PIA the same way PIA's own browser extension does:
 
-If you have an HTTP/HTTPS proxy that uses a username and password, you can skip the relay and enter the proxy and login details in the extension's settings.
+1. You enter your PIA username (`p1234567`) and password in the extension's settings. They are sent to PIA's API (`/v5/api_token`) in exchange for a login token. Your password is not stored.
+2. The token is kept in the extension's local storage. The extension renews it automatically before it expires (`/v5/refresh`).
+3. A routing script (PAC) sends only `imgur.com`/`imgur.io` requests to the chosen PIA proxy, `<location>.http-proxy.privateinternetbrowsing.com:443`.
+4. When the proxy asks for a login, the extension answers with the token, split in half into a username and a password (the same scheme PIA's extension uses).
 
-## Setup (Linux, Brave/Chrome)
+The location list comes from `serverlist.piaservers.net/proxy`. UK locations are hidden because imgur blocks the UK.
 
-1. **Get PIA SOCKS credentials.** In the PIA Client Control Panel, use "Generate SOCKS Password". This is not your normal PIA login. The username starts with `x`.
+This relies on PIA's undocumented extension API, so it could stop working if PIA changes it.
 
-2. **Install gost.** On Arch or CachyOS:
-   ```sh
-   sudo pacman -S gost
-   ```
-   For other systems, see the [gost releases](https://github.com/go-gost/gost/releases).
+## Install (Brave/Chrome)
 
-3. **Configure the relay:**
-   ```sh
-   mkdir -p ~/.config/gost
-   cp relay/pia.example.yaml ~/.config/gost/pia.yaml
-   chmod 600 ~/.config/gost/pia.yaml
-   # edit ~/.config/gost/pia.yaml and fill in your username and password
-   ```
+1. Download this repo (or `git clone` it).
+2. Open `brave://extensions` and turn on **Developer mode** (top right).
+3. Click **Load unpacked** and select the repo folder.
+4. **Disable PIA's own browser extension** if you have it. Only one extension can control the browser's proxy settings at a time.
+5. Click the Imgur Unblocker icon, then **Proxy settings**. Sign in with your PIA username and password, pick a location, and click **Save**.
 
-4. **Run the relay at login:**
-   ```sh
-   mkdir -p ~/.config/systemd/user
-   cp relay/imgur-pia-relay.service ~/.config/systemd/user/
-   systemctl --user daemon-reload
-   systemctl --user enable --now imgur-pia-relay
-   ```
+The popup should now say "Proxying via PIA NL Amsterdam" (or the location you picked).
 
-5. **Test the relay:**
-   ```sh
-   curl -sI --socks5-hostname 127.0.0.1:1080 https://i.imgur.com/removed.png | head -1
-   ```
-   You should see `HTTP/2 200`. Run `journalctl --user -u imgur-pia-relay` to see relay errors. For example, `auth failure` means the credentials are wrong.
+## Custom proxy
 
-6. **Load the extension:** open `brave://extensions`, turn on **Developer mode** (top right), click **Load unpacked**, and select this folder.
+If you'd rather use a different proxy, set **Proxy** to **Custom proxy** in the settings. HTTP and HTTPS proxies with a username and password work. SOCKS5 only works without a login, because Brave and Chrome can't log in to SOCKS5 proxies.
 
-The defaults (SOCKS5, `127.0.0.1:1080`) match the relay, so no further setup is needed. To change the proxy, click the extension icon and choose **Proxy settings**.
+## Troubleshooting
 
-## Notes
+The popup shows the current status:
 
-- Only one extension at a time can control the browser's proxy settings. If you also use the PIA browser extension (or another proxy extension), the popup will show "Another extension controls the proxy".
-- The popup shows the current proxy status and any recent proxy error.
+- **Not signed in to PIA**: sign in from the proxy settings.
+- **Another extension controls the proxy**: disable the other proxy/VPN extension (usually PIA's own).
+- **PIA rejected the login** or **PIA session expired**: sign out and sign in again.

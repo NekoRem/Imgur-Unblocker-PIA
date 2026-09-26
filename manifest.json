@@ -1,11 +1,12 @@
 {
     "name": "Imgur Unblocker (PIA Proxy)",
-    "version": "3.0.0",
-    "description": "Routes imgur traffic through your own proxy (e.g. PIA SOCKS5) to get around regional blocks.",
+    "version": "3.1.0",
+    "description": "Routes only imgur traffic through PIA (or your own proxy) to get around regional blocks.",
     "manifest_version": 3,
     "permissions": [
         "proxy",
         "storage",
+        "alarms",
         "webRequest",
         "webRequestAuthProvider"
     ],

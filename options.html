@@ -50,55 +50,95 @@
             margin-top: 4px;
         }
 
-        #authFields.hidden {
+        .hidden {
             display: none;
         }
 
+        fieldset {
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin: 12px 0 0;
+            padding: 4px 12px 12px;
+        }
+
         button {
-            margin-top: 14px;
+            margin-top: 10px;
             padding: 6px 16px;
         }
 
-        #status {
+        .status {
             margin-left: 8px;
+        }
+
+        .status.ok {
             color: #4CAF50;
+        }
+
+        .status.bad {
+            color: #d33;
         }
     </style>
 </head>
 <body>
     <label class="inline"><input type="checkbox" id="enabled"> Route imgur through proxy</label>
 
-    <label for="scheme">Proxy type</label>
-    <select id="scheme">
-        <option value="socks5">SOCKS5 (no login)</option>
-        <option value="http">HTTP</option>
-        <option value="https">HTTPS</option>
+    <label for="mode">Proxy</label>
+    <select id="mode">
+        <option value="pia">PIA account</option>
+        <option value="custom">Custom proxy</option>
     </select>
-    <div class="hint">
-        Brave/Chrome can't log in to SOCKS5 proxies. For PIA, run a local relay
-        (see README) and point this at 127.0.0.1:1080.
-    </div>
 
-    <div class="row">
-        <div>
-            <label for="host">Host</label>
-            <input type="text" id="host" placeholder="127.0.0.1">
+    <fieldset id="piaSection">
+        <div id="piaSignedOut">
+            <label for="piaUsername">PIA username</label>
+            <input type="text" id="piaUsername" placeholder="p1234567" autocomplete="username">
+            <label for="piaPassword">PIA password</label>
+            <input type="password" id="piaPassword" autocomplete="current-password">
+            <div class="hint">Your password is only sent to PIA to get a login token, and is not stored.</div>
+            <button id="piaSignIn">Sign in</button><span class="status" id="piaStatus"></span>
         </div>
-        <div>
-            <label for="port">Port</label>
-            <input type="number" id="port" min="1" max="65535" placeholder="1080">
+
+        <div id="piaSignedIn" class="hidden">
+            <div class="hint" id="piaSessionInfo"></div>
+            <button id="piaSignOut">Sign out</button>
         </div>
-    </div>
 
-    <div id="authFields">
-        <label for="username">Username</label>
-        <input type="text" id="username" autocomplete="off">
-        <label for="password">Password</label>
-        <input type="password" id="password" autocomplete="off">
-    </div>
+        <label for="piaServer">Location</label>
+        <select id="piaServer"></select>
+        <div class="hint">UK locations are hidden because imgur blocks the UK.</div>
+    </fieldset>
 
-    <button id="save">Save</button><span id="status"></span>
+    <fieldset id="customSection" class="hidden">
+        <label for="scheme">Proxy type</label>
+        <select id="scheme">
+            <option value="socks5">SOCKS5 (no login)</option>
+            <option value="http">HTTP</option>
+            <option value="https">HTTPS</option>
+        </select>
+        <div class="hint">Brave/Chrome can't log in to SOCKS5 proxies.</div>
 
+        <div class="row">
+            <div>
+                <label for="host">Host</label>
+                <input type="text" id="host" placeholder="127.0.0.1">
+            </div>
+            <div>
+                <label for="port">Port</label>
+                <input type="number" id="port" min="1" max="65535" placeholder="1080">
+            </div>
+        </div>
+
+        <div id="authFields">
+            <label for="username">Username</label>
+            <input type="text" id="username" autocomplete="off">
+            <label for="password">Password</label>
+            <input type="password" id="password" autocomplete="off">
+        </div>
+    </fieldset>
+
+    <button id="save">Save</button><span class="status" id="saveStatus"></span>
+
+    <script src="defaults.js"></script>
     <script src="options.js"></script>
 </body>
 </html>

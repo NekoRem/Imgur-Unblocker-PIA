@@ -66,25 +66,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function updateProxyStatus() {
         const el = document.getElementById('proxyStatus');
-        const [{ settings, lastProxyError }, proxyConfig] = await Promise.all([
-            chrome.storage.local.get(['settings', 'lastProxyError']),
+        const [{ settings: saved, pia, lastProxyError }, proxyConfig] = await Promise.all([
+            chrome.storage.local.get(['settings', 'pia', 'lastProxyError']),
             chrome.proxy.settings.get({})
         ]);
+        const settings = { ...DEFAULT_SETTINGS, ...saved };
 
-        if (settings && settings.enabled === false) {
-            el.className = 'proxy-status';
-            el.textContent = 'Proxy disabled';
+        const setStatus = (className, text) => {
+            el.className = `proxy-status ${className}`;
+            el.textContent = text;
+        };
+
+        if (!settings.enabled) {
+            setStatus('', 'Proxy disabled');
+        } else if (settings.mode === 'pia' && !pia?.token) {
+            setStatus('bad', 'Not signed in to PIA');
         } else if (proxyConfig.levelOfControl !== 'controlled_by_this_extension') {
-            el.className = 'proxy-status bad';
-            el.textContent = 'Another extension controls the proxy';
+            setStatus('bad', 'Another extension controls the proxy');
         } else if (lastProxyError && Date.now() - lastProxyError.time < 5 * 60 * 1000) {
-            el.className = 'proxy-status bad';
-            el.textContent = `Proxy error: ${lastProxyError.error}`;
+            setStatus('bad', `Proxy error: ${lastProxyError.error}`);
+        } else if (settings.mode === 'pia') {
+            setStatus('ok', `Proxying via PIA ${settings.piaServer.name}`);
         } else {
-            const host = settings?.host || '127.0.0.1';
-            const port = settings?.port || 1080;
-            el.className = 'proxy-status ok';
-            el.textContent = `Proxying via ${host}:${port}`;
+            setStatus('ok', `Proxying via ${settings.host}:${settings.port}`);
         }
     }
 
