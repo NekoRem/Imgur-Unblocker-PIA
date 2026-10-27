@@ -1,10 +1,10 @@
-# ImgurUnblocker (PIA Proxy fork)
+# Imgur-Unblocker-PIA
 
 Routes **only** imgur traffic through [PIA](https://www.privateinternetaccess.com/)'s proxy servers so imgur works in the UK again. Every other site connects directly as normal.
 
 Imgur shows "Content not viewable in your region" in the UK. The original extension got around this with DuckDuckGo's image proxy, which no longer works. This fork loads the real imgur servers through a PIA proxy instead, so full imgur pages and albums work too, not just direct image links.
 
-Forked from [HexedHero/ImgurUnblocker](https://github.com/HexedHero/ImgurUnblocker).
+Based on the original [ImgurUnblocker](https://github.com/HexedHero/ImgurUnblocker) by HexedHero and on the authentication scheme used by PIA's own browser extension. See [Credits](#credits).
 
 ## How it works
 
@@ -45,3 +45,8 @@ The popup shows the current status:
 - **Not signed in to PIA**: sign in from the proxy settings.
 - **Another extension controls the proxy**: disable the other proxy/VPN extension (usually PIA's own).
 - **PIA rejected the login** or **PIA session expired**: sign out and sign in again.
+
+## Credits
+
+- **[ImgurUnblocker](https://github.com/HexedHero/ImgurUnblocker)** by HexedHero: the original extension this project is based on (MIT licensed, see `LICENSE.md`).
+- **PIA authentication**: the sign-in, token renewal and proxy login flow is based on how [Private Internet Access](https://www.privateinternetaccess.com/)'s official browser extension authenticates. This project is not affiliated with or endorsed by PIA.
